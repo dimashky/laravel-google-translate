@@ -38,7 +38,8 @@ class ApiTranslateWithAttribute extends ApiTranslate
 
     private function find_parameters($text)
     {
-        preg_match_all("/(^:|([\s|\:])\:)([a-zA-z])+/", $text, $matches);
+        // {params} and :params
+        preg_match_all("/(?:(^{|([\s|\{])\{)([a-zA-z])+(})+|(^:|([\s|\:])\:)([a-zA-z])+)/", $text, $matches);
         return $matches[0];
     }
 

@@ -43,7 +43,7 @@ class TranslateFilesCommand extends Command
      * @param bool $verbose
      * @param string $excluded_files
      */
-    public function __construct($base_locale = 'en', $locales = 'tr,it', $target_files = '', $force = false, $json = false, $verbose = true, $excluded_files = 'auth,pagination,validation,passwords')
+    public function __construct($base_locale = 'en', $locales = 'ar,es', $target_files = '', $force = false, $json = false, $verbose = true, $excluded_files = 'auth,pagination,validation,passwords')
     {
         parent::__construct();
         $this->base_locale = $base_locale;
@@ -73,7 +73,7 @@ class TranslateFilesCommand extends Command
         if ($should_verbose === 'Yes') {
             $this->verbose = true;
         }
-        $mode = $this->choice('Use text exploration and json translation or php files?', ['json', 'php'], 'php');
+        $mode = $this->choice('Use text exploration and json translation or php files?', ['json', 'php', 'webapp', 'dashboard'], 'php');
         $this->json = false;
         if ($mode === 'json') {
             $this->json = true;
@@ -99,7 +99,7 @@ class TranslateFilesCommand extends Command
                 continue;
             }
             $this->line($this->base_locale . " -> " . $locale . " translating...");
-            $file_translator->handle($locale);
+            $file_translator->handle($locale, $mode);
             $this->line($this->base_locale . " -> " . $locale . " translated.");
             $bar->advance();
             $this->line("");

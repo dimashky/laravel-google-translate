@@ -18,6 +18,10 @@ class TranslateTest extends TestCase
         $test_text = 'My name is :attribute';
         $translated_test_text = Str::apiTranslateWithAttributes($test_text, 'tr', 'en');
         $this->assertStringContainsString(':attribute', $translated_test_text);
+
+        $test_text = 'My name is {attribute}';
+        $translated_test_text = Str::apiTranslateWithAttributes($test_text, 'tr', 'en');
+        $this->assertStringContainsString('{attribute}', $translated_test_text);
     }
 }
 

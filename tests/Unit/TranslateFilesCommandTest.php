@@ -37,5 +37,43 @@ class TranslateFilesCommandTest extends TestCase
         $this->assertFileExists(resource_path('lang/tr.json'));
         unlink(resource_path('lang/tr.json'));
     }
+
+    public function testTranslateWebappFilesCommand()
+    {
+        $this->app->setBasePath(__DIR__.'/../test-resources');
+        $this->artisan('translate:files')
+            ->expectsQuestion('What is base locale?', 'sv')
+            ->expectsQuestion('What are the target locales? Comma seperate each lang key', 'tr')
+            ->expectsQuestion('Force overwrite existing translations?','1')
+            ->expectsQuestion('Verbose each translation?','1')
+            ->expectsQuestion('Use text exploration and json translation or php files?','webapp')
+            ->expectsQuestion('Are there specific target files to translate only? ex: file1,file2','')
+            ->expectsQuestion('Are there specific files to exclude?','')
+            ->assertExitCode(0);
+        $this->assertFileExists(resource_path('lang/tr/tests.php'));
+        $this->assertFileExists(resource_path('lang/webapp/tr.json'));
+        unlink(resource_path('lang/tr/tests.php'));
+        unlink(resource_path('lang/webapp/tr.json'));
+        rmdir(resource_path('lang/tr'));
+    }
+
+    public function testTranslateDashboardFilesCommand()
+    {
+        $this->app->setBasePath(__DIR__.'/../test-resources');
+        $this->artisan('translate:files')
+            ->expectsQuestion('What is base locale?', 'sv')
+            ->expectsQuestion('What are the target locales? Comma seperate each lang key', 'tr')
+            ->expectsQuestion('Force overwrite existing translations?','1')
+            ->expectsQuestion('Verbose each translation?','1')
+            ->expectsQuestion('Use text exploration and json translation or php files?','dashboard')
+            ->expectsQuestion('Are there specific target files to translate only? ex: file1,file2','')
+            ->expectsQuestion('Are there specific files to exclude?','')
+            ->assertExitCode(0);
+        $this->assertFileExists(resource_path('lang/tr/tests.php'));
+        $this->assertFileExists(resource_path('lang/dashboard/tr.json'));
+        unlink(resource_path('lang/tr/tests.php'));
+        unlink(resource_path('lang/dashboard/tr.json'));
+        rmdir(resource_path('lang/tr'));
+    }
 }
 

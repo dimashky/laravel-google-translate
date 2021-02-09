@@ -22,7 +22,7 @@ class PhpArrayFileTranslator implements FileTranslatorContract
         $this->force = $force;
     }
 
-    public function handle($target_locale) : void
+    public function handle($target_locale, $mode = 'php') : void
     {
         $files = $this->get_translation_files();
         $this->create_missing_target_folders($target_locale, $files);
@@ -41,7 +41,7 @@ class PhpArrayFileTranslator implements FileTranslatorContract
             if (is_array($to_be_translateds)) {
                 $translations = $this->handleTranslations($to_be_translateds, $existing_translations, $target_locale);
             }
-            $this->write_translations_to_file($target_locale, $file, $translations);
+            $this->write_translations_to_file($target_locale, $file, $translations, $mode);
         }
         return;
     }
@@ -64,11 +64,22 @@ class PhpArrayFileTranslator implements FileTranslatorContract
         }
     }
 
-    private function write_translations_to_file($target_locale, $file, $translations){
-        $file = fopen($this->get_language_file_address($target_locale, $file.'.php'), "w+");
-        $export = var_export($translations, true);
+    private function write_translations_to_file($target_locale, $file, $translations, $mode = 'php'){
+        $filename = $file;
 
-        //use [] notation instead of array()
+        $file_path = $this->get_language_file_address($target_locale, $file.'.php');
+        if($mode !== 'php') {
+            $file_path = $this->get_language_file_address($mode, $target_locale.'.json');
+        }
+
+        $file = fopen($file_path, "w+");
+        if($mode !== 'php') {
+            fwrite($file, json_encode($translations, JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT));
+            fclose($file);
+            return $this->write_translations_to_file($target_locale, $filename, $translations, 'php'); // write to php to avoid next translations
+        }
+
+        $export = var_export($translations, true);
         $patterns = [
             "/array \(/" => '[',
             "/^([ ]*)\)(,?)$/m" => '$1]$2',
@@ -76,8 +87,6 @@ class PhpArrayFileTranslator implements FileTranslatorContract
             "/([ ]*)(\'[^\']+\') => ([\[\'])/" => '$1$2 => $3',
         ];
         $export = preg_replace(array_keys($patterns), array_values($patterns), $export);
-
-
         $write_text = "<?php \nreturn " . $export . ";";
         fwrite($file, $write_text);
         fclose($file);
